@@ -1,0 +1,210 @@
+{% extends 'base.html' %} {% block main %}
+
+<div class="flex m-auto h-screen space-y-8 py-10 mx-10">
+  <div class="flex flex-col space-y-8 w-1/2 items-start">
+    <h4 class="text-2xl font-bold dark:text-white"></h4>
+
+    <video controls width="320" height="240">
+      <source src="static/public/IMG_6423.MOV" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+
+
+    <div class="flex justify-center items-center p-2 bg-gray-100 rounded-lg shadow">
+
+    <audio  controls >
+  <source src="{{ url_for('static', filename='public/audio/0.mp3') }}" type="audio/mp3">
+  Your browser does not support the audio element.
+</audio>
+</div>
+
+<form class="">
+  <label for="underline_select" class="sr-only">Underline select</label>
+  <select id="underline_select" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
+      <option selected>Choose a country</option>
+      <option value="US">United States</option>
+      <option value="CA">Canada</option>
+      <option value="FR">France</option>
+      <option value="DE">Germany</option>
+  </select>
+</form>
+        <input
+      type="submit"
+      value="Regenerate video"
+      class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
+    />
+  </div>
+
+  <div class="w-full space-y-8">
+    <h4 class="text-2xl font-bold dark:text-white">
+      AI - Generated Video Script
+    </h4>
+    <p class="text-gray-500 dark:text-gray-400">
+      Track work across the enterprise through an open, collaborative platform.
+      Link issues across Jira and ingest data from other software development
+      tools, so your IT support and operations teams have richer contextual
+      information to rapidly respond to requests, incidents, and changes.
+    </p>
+
+    <ul class="w-full space-y-8">
+      {% for item in items %}
+      <li class="flex bg-gray-100 dark:bg-gray-700 p-6 rounded-lg">
+        <div class="space-y-4">
+          {% if item.type == 'video' %}
+          <video controls width="320" height="240">
+            <source
+              src="{{ url_for('static', filename=item.filename) }}"
+              type="video/mp4"
+            />
+            Your browser does not support the video tag.
+          </video>
+          {% else %}
+          <img
+            src="{{ url_for('static', filename=item.filename) }}"
+            alt="Image"
+            width="320"
+            height="240"
+          />
+
+          {% endif %}
+
+          <div class="relative max-w-sm">
+            <div
+              class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
+            >
+              <svg
+                class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"
+                />
+              </svg>
+            </div>
+            <input
+              datepicker
+              datepicker-autohide
+              type="text"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Select date"
+            />
+          </div>
+
+          <div class="relative">
+            <div
+              class="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none"
+            >
+              <svg
+                class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <input
+              type="time"
+              id="time"
+              class="bg-gray-50 border leading-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              min="09:00"
+              max="18:00"
+              value="00:00"
+              required
+            />
+          </div>
+
+          <div class="relative">
+            <div
+              class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
+            >
+              <svg
+                class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                />
+              </svg>
+            </div>
+            <input
+              type="search"
+              id="location-search"
+              class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Search Mockups, Logos..."
+              required
+            />
+          </div>
+        </div>
+        <div class="mx-10 w-full space-y-4 items-stretch">
+          <p class="text-gray-500 dark:text-gray-400 font-medium">Scene 1</p>
+
+          <div class="">
+            <label
+              for="message"
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >Media Description</label
+            >
+            <textarea
+              id="message"
+              rows="4"
+              class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Write your thoughts here..."
+            ></textarea>
+          </div>
+              <input
+            type="submit"
+            value="Regenerate GeminiAI description"
+            class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
+          />
+          <div class="">
+            <label
+              for="message"
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >Narration Script</label
+            >
+            <textarea
+              id="message"
+              rows="4"
+              class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Write your thoughts here..."
+            ></textarea>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</div>
+
+<script>
+  function initAutocomplete() {
+    // Create the autocomplete object, restricting the search to geographical location types.
+    autocomplete = new google.maps.places.Autocomplete(
+      document.getElementById("location-search"),
+      { types: ["geocode"] }
+    );
+    autocomplete.addListener("place_changed", function () {
+      var place = autocomplete.getPlace();
+      console.log(place); // Do something with the selected place.
+    });
+  }
+</script>
+
+{% endblock %}

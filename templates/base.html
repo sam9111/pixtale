@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pixtale</title>
+    <link rel="icon" type="image/webp" href="/img/favicon.webp" />
+
+    <link
+      rel="stylesheet"
+      href="{{url_for('static',filename='dist/css/output.css')}}"
+    />
+  </head>
+
+  <body class="bg-background text-foreground">
+    <main class="">
+      <header class=" p-4 mx-auto text-center">
+     <h1 class="text-4xl font-extrabold dark:text-white">Pixtale</h1>
+      </header>
+
+      <hr class="border-t border-gray-200 dark:border-gray-700 w-full" />
+
+      {% block main %} {% endblock %}
+
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/datepicker.min.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&libraries=places&callback=initAutocomplete" async defer></script>
+
+  </body>
+</html>
