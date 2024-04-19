@@ -157,6 +157,7 @@ def extract_metadata(dir_path):
         print("Extracting metadata from {}".format(file))
 
         if file.lower().endswith((".mov", ".mp4", ".avi", ".flv", ".wmv")):
+            type = "video"
             print("{} is a video file".format(file))
             video_path = os.path.join(dir_path, file)
             lat, lon = extract_gps_from_video(video_path)
@@ -164,6 +165,8 @@ def extract_metadata(dir_path):
             date_time = extract_datetime_video(video_path)
 
         else:
+
+            type = "image"
 
             image_path = os.path.join(dir_path, file)
 
@@ -190,6 +193,7 @@ def extract_metadata(dir_path):
             "latitude": lat,
             "longitude": lon,
             "datetime": date_time,
+            "type": type,
         }
 
         try:

@@ -110,3 +110,9 @@ venv.bak/
 
 
 _secrets_/
+
+static/public/
+
+*.zip
+
+data/
