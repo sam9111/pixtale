@@ -198,36 +198,31 @@ def extract_metadata(dir_path):
             "filename": file,
             "latitude": lat,
             "longitude": lon,
-            "datetime": date_time,
             "type": type,
         }
 
         try:
             # Check if datetime is a binary string
-            if isinstance(metadata["datetime"], bytes):
+            if isinstance(date_time, bytes):
                 # Decode the binary string and convert to datetime object
-                metadata["datetime"] = datetime.strptime(
-                    metadata["datetime"].decode(), "%Y:%m:%d %H:%M:%S"
-                )
-            elif isinstance(metadata["datetime"], str):
+                date_time = datetime.strptime(date_time.decode(), "%Y:%m:%d %H:%M:%S")
+            elif isinstance(date_time, str):
                 # Convert string to datetime object
-                metadata["datetime"] = datetime.strptime(
-                    metadata["datetime"], "%Y:%m:%d %H:%M:%S"
-                )
+                date_time = datetime.strptime(date_time, "%Y:%m:%d %H:%M:%S")
 
             else:
-                metadata["datetime"] = datetime.min
+                date_time = datetime.min
         except ValueError:
-            metadata["datetime"] = datetime.min
+            date_time = datetime.min
             print(f"Invalid date-time string: {date_time}")
+
+        metadata["date"] = date_time.strftime("%Y-%m-%d")
+
+        metadata["time"] = date_time.strftime("%H:%M:%S")
 
         metadata_list.append(metadata)
 
-    # Sort mediaitems by datetime
-    metadata_list.sort(key=lambda item: item["datetime"])
-
-    for item in metadata_list:
-        item["datetime"] = item["datetime"].isoformat()
+    metadata_list.sort(key=lambda x: (x["date"], x["time"]))
 
     with open("./data/mediaitems.json", "w") as json_file:
         json.dump(metadata_list, json_file)

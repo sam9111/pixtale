@@ -89,7 +89,7 @@ def generate_descriptions(dir_path, mediaitems):
 
             item["description"] = describe_image(file_path)
 
-    mediaitems.sort(key=lambda item: item["datetime"])
+    mediaitems.sort(key=lambda x: (x["date"], x["time"]))
     with open("./data/mediaitems.json", "w") as json_file:
         json.dump(mediaitems, json_file)
 
@@ -102,7 +102,7 @@ def get_script(mediaitems):
     result = None
     while result is None:
         response = model.generate_content(
-            """You excel at narrating short videos like Tiktok reels or Youtube shorts. You will be given a json list with objects. This list is a chronological list of photos and videos. Using the information about the place, datetime and description of the photo or video, come up with a short script to narrate the whole trip which can be used in a video merging all these photos and videos. If a particular media item has a missing datetime or place field, infer where it would fit in along with the context of the other items. Do not make any assumptions and strictly stick to describing the trip like a story in first person and past tense. Make the narration more continous and like a person describing the entire trip casually to their family and friends like a story. Include narration for every scene. Do not repeat any photo or video in the list. For videos ensure that the narration will not run over more than the video length given in duration field. Keep the sentences short for each scene and include all photos and videos. Output JSON only in the format like in the example below:
+            """You excel at narrating short videos like Tiktok reels or Youtube shorts. You will be given a json list with objects. This list is a chronological list of photos and videos. Using the information about the place, date, time and description of the photo or video, come up with a short script to narrate the whole trip which can be used in a video merging all these photos and videos. If a particular media item has a missing date, time or place field, infer where it would fit in along with the context of the other items. Do not make any assumptions and strictly stick to describing the trip like a story in first person and past tense. Make the narration more continous and like a person describing the entire trip casually to their family and friends like a story. Include narration for every scene. Do not repeat any photo or video in the list. For videos ensure that the narration will not run over more than the video length given in duration field. Keep the sentences short for each scene and include all photos and videos. Output JSON only in the format like in the example below:
     \n{
   "title": "Our Grand Canyon Adventure",
   "description": "Join us on our unforgettable road trip to the Grand Canyon, as we explore stunning landscapes and experience the beauty of one of the world's natural wonders.",
@@ -199,24 +199,3 @@ def synthesize_text(text, filename):
     with open(filename + ".mp3", "wb") as out:
         out.write(response.audio_content)
         print("Audio content written to file " + filename)
-
-
-def list_voices():
-    """Lists the available voices."""
-    from google.cloud import texttospeech
-
-    client = texttospeech.TextToSpeechClient()
-
-    # Performs the list voices request
-    voices = client.list_voices()
-
-    english_voices = []
-
-    for voice in voices.voices:
-
-        for language_code in voice.language_codes:
-            if "en" in language_code:
-
-                english_voices.append(voice)
-
-    return english_voices

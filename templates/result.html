@@ -5,7 +5,7 @@
     <h4 class="text-2xl font-bold dark:text-white"></h4>
 
     <video controls width="320" height="240">
-      <source src="static/public/IMG_6423.MOV" type="video/mp4" />
+      <source src="static/public/result/combined_video.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
 
@@ -14,31 +14,53 @@
     >
       <audio controls>
         <source
-          src="{{ url_for('static', filename='public/audio/0.mp3') }}"
+          src="{{ url_for('static', filename='public/result/' ~ audio_file) }}"
           type="audio/mp3"
         />
         Your browser does not support the audio element.
       </audio>
     </div>
 
-    <form class="">
-      <label for="underline_select" class="sr-only">Underline select</label>
-      <select
-        id="underline_select"
-        class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
-      >
-        <option selected>Choose a country</option>
-        <option value="US">United States</option>
-        <option value="CA">Canada</option>
-        <option value="FR">France</option>
-        <option value="DE">Germany</option>
-      </select>
+    <form action="/save" method="post">
+      <div class="flex items-center gap-2">
+        <select
+          id="underline_select"
+          class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
+        >
+          {% for voice in voices_list %}
+
+          <option value="{{voice}}">{{voice.voice}}</option>
+
+          {% endfor %}
+        </select>
+
+        <a
+          href="https://cloud.google.com/text-to-speech/docs/voices?hl=en"
+          target="_blank"
+        >
+          <svg
+            class="w-6 h-6 text-gray-800 dark:text-white"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </a>
+      </div>
+      <input
+        type="submit"
+        value="Regenerate video"
+        class="mt-4 text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
+      />
     </form>
-    <input
-      type="submit"
-      value="Regenerate video"
-      class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
-    />
   </div>
 
   <div class="w-full space-y-8">
@@ -54,7 +76,12 @@
 
     <ul class="w-full space-y-8">
       {% for item in mediaitems %}
-      <li class="flex bg-gray-100 dark:bg-gray-700 p-6 rounded-lg">
+
+      <form
+        action="/save"
+        method="post"
+        class="flex bg-gray-100 dark:bg-gray-700 p-6 rounded-lg"
+      >
         <div class="space-y-4">
           {% if item.type == 'video' %}
           <video controls width="320" height="240">
@@ -96,7 +123,9 @@
               type="text"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="Select date"
-              value="{{item.datetime}}"
+              value="{{item.date}}"
+              name="date"
+              datepicker-format="yyyy-mm-dd"
             />
           </div>
 
@@ -119,13 +148,11 @@
               </svg>
             </div>
             <input
+              name="time"
               type="time"
               id="time"
               class="bg-gray-50 border leading-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              min="09:00"
-              max="18:00"
-              value="00:00"
-              value="{{item.datetime}}"
+              value="{{item.time}}"
             />
           </div>
 
@@ -150,48 +177,54 @@
               </svg>
             </div>
             <input
+              name="place"
               type="search"
-              id="location-search"
-              class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              class="location-search block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="Search Location"
               value="{{item.place}}"
             />
           </div>
         </div>
+
         <div class="mx-10 w-full space-y-4 items-stretch">
           <p class="text-gray-500 dark:text-gray-400 font-medium">
             Scene {{item.scene_number}}
           </p>
 
-          <form action="/regenerate_description" method="post" class="block">
-            <div class="">
-              <label
-                for="message"
-                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >Media Description</label
-              >
-              <textarea
-                name="description"
-                id="message"
-                rows="4"
-                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              >
-{{item.description}}</textarea
-              >
-            </div>
-              <input type="hidden" name="item_filename" value="{{ item.filename }}" />
-
-            <button
-              type="submit"
-              class="p-2 rounded-md focus:outline-none focus:ring"
+          <div class="">
+            <label
+              for="message"
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >Media Description</label
             >
-              <img
-                src="{{ url_for('static', filename='gemini_icon.svg') }}"
-                alt="Gemini Icon"
-                class="w-8 h-8"
-              />
-            </button>
-          </form>
+            <textarea
+              name="description"
+              id="message"
+              rows="7"
+              class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            >
+{{item.description}}</textarea
+            >
+          </div>
+
+          <button
+            id="regenerate-description-button-{{ loop.index }}"
+            class="p-2 rounded-md focus:outline-none focus:ring"
+              data-filename="{{ item.filename }}"
+
+          >
+            <img
+              src="{{ url_for('static', filename='gemini_icon.svg') }}"
+              alt="Gemini Icon"
+              class="w-8 h-8"
+            />
+          </button>
+          <input
+            id="filename"
+            type="hidden"
+            name="filename"
+            value="{{ item.filename }}"
+          />
 
           <div class="">
             <label
@@ -200,8 +233,9 @@
               >Narration Script</label
             >
             <textarea
+              name="narration_text"
               id="message"
-              rows="4"
+              rows="7"
               class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             >
 {{item.narration_text}}</textarea
@@ -213,30 +247,81 @@
             class="items-end text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
           />
         </div>
-      </li>
+      </form>
+
       {% endfor %}
     </ul>
   </div>
 </div>
 
-<script>
-  function initAutocomplete() {
-    // Create the autocomplete object, restricting the search to geographical location types.
-    autocomplete = new google.maps.places.Autocomplete(
-      document.getElementById("location-search"),
-      { types: ["geocode"] }
-    );
-    autocomplete.addListener("place_changed", function () {
-      var place = autocomplete.getPlace();
-      console.log(place); // Do something with the selected place.
-    });
-  }
-</script>
-
 <script
-  src="https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&libraries=places&callback=initAutocomplete"
+  src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&libraries=places&callback=initAutocomplete"
   async
   defer
 ></script>
+<script>
+  function initAutocomplete() {
+    // Get all elements with the class 'location-search'
+    var inputs = document.querySelectorAll(".location-search");
+
+    inputs.forEach(function (input) {
+      // Create the autocomplete object for each input
+      var autocomplete = new google.maps.places.Autocomplete(input);
+
+      // Set the data fields to return when the user selects a place.
+      autocomplete.setFields([
+        "address_components",
+        "geometry",
+        "icon",
+        "name",
+      ]);
+
+      // Handle the event when a place is selected from the dropdown
+      autocomplete.addListener("place_changed", function () {
+        var place = autocomplete.getPlace();
+
+        // You can use 'place' details to populate your input fields or variables
+        console.log(place);
+      });
+    });
+  }
+
+  // Ensure the initAutocomplete function is available globally
+  window.initAutocomplete = initAutocomplete;
+
+function addRegenerateDescriptionEventListener(button) {
+    button.addEventListener("click", function (e) {
+      e.preventDefault(); // Prevent the default form submission if the button is inside a form
+
+      var filename = button.getAttribute('data-filename'); // Get the filename from the data attribute
+
+      fetch("/regenerate_description", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Include other headers as needed, such as CSRF tokens or authentication
+        },
+        body: JSON.stringify({
+          filename: filename, // Include the filename in the request body
+        }),
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        window.location.href = "/result?ts=" + new Date().getTime();
+      })
+      
+      .catch((error) => {
+        console.error(
+          "There has been a problem with your fetch operation:",
+          error
+        );
+      });
+    });
+  }
+  document.querySelectorAll("[id^='regenerate-description-button-']").forEach(addRegenerateDescriptionEventListener);
+
+</script>
 
 {% endblock %}
