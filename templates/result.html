@@ -9,26 +9,32 @@
       Your browser does not support the video tag.
     </video>
 
+    <div
+      class="flex justify-center items-center p-2 bg-gray-100 rounded-lg shadow"
+    >
+      <audio controls>
+        <source
+          src="{{ url_for('static', filename='public/audio/0.mp3') }}"
+          type="audio/mp3"
+        />
+        Your browser does not support the audio element.
+      </audio>
+    </div>
 
-    <div class="flex justify-center items-center p-2 bg-gray-100 rounded-lg shadow">
-
-    <audio  controls >
-  <source src="{{ url_for('static', filename='public/audio/0.mp3') }}" type="audio/mp3">
-  Your browser does not support the audio element.
-</audio>
-</div>
-
-<form class="">
-  <label for="underline_select" class="sr-only">Underline select</label>
-  <select id="underline_select" class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
-      <option selected>Choose a country</option>
-      <option value="US">United States</option>
-      <option value="CA">Canada</option>
-      <option value="FR">France</option>
-      <option value="DE">Germany</option>
-  </select>
-</form>
-        <input
+    <form class="">
+      <label for="underline_select" class="sr-only">Underline select</label>
+      <select
+        id="underline_select"
+        class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
+      >
+        <option selected>Choose a country</option>
+        <option value="US">United States</option>
+        <option value="CA">Canada</option>
+        <option value="FR">France</option>
+        <option value="DE">Germany</option>
+      </select>
+    </form>
+    <input
       type="submit"
       value="Regenerate video"
       class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
@@ -47,20 +53,20 @@
     </p>
 
     <ul class="w-full space-y-8">
-      {% for item in items %}
+      {% for item in mediaitems %}
       <li class="flex bg-gray-100 dark:bg-gray-700 p-6 rounded-lg">
         <div class="space-y-4">
           {% if item.type == 'video' %}
           <video controls width="320" height="240">
             <source
-              src="{{ url_for('static', filename=item.filename) }}"
+              src="{{ url_for('static', filename='public/' ~ item.filename) }}"
               type="video/mp4"
             />
             Your browser does not support the video tag.
           </video>
           {% else %}
           <img
-            src="{{ url_for('static', filename=item.filename) }}"
+            src="{{ url_for('static', filename='public/' ~ item.filename) }}"
             alt="Image"
             width="320"
             height="240"
@@ -90,6 +96,7 @@
               type="text"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="Select date"
+              value="{{item.datetime}}"
             />
           </div>
 
@@ -118,7 +125,7 @@
               min="09:00"
               max="18:00"
               value="00:00"
-              required
+              value="{{item.datetime}}"
             />
           </div>
 
@@ -146,32 +153,46 @@
               type="search"
               id="location-search"
               class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="Search Mockups, Logos..."
-              required
+              placeholder="Search Location"
+              value="{{item.place}}"
             />
           </div>
         </div>
         <div class="mx-10 w-full space-y-4 items-stretch">
-          <p class="text-gray-500 dark:text-gray-400 font-medium">Scene 1</p>
+          <p class="text-gray-500 dark:text-gray-400 font-medium">
+            Scene {{item.scene_number}}
+          </p>
 
-          <div class="">
-            <label
-              for="message"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              >Media Description</label
+          <form action="/regenerate_description" method="post" class="block">
+            <div class="">
+              <label
+                for="message"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Media Description</label
+              >
+              <textarea
+                name="description"
+                id="message"
+                rows="4"
+                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              >
+{{item.description}}</textarea
+              >
+            </div>
+              <input type="hidden" name="item_filename" value="{{ item.filename }}" />
+
+            <button
+              type="submit"
+              class="p-2 rounded-md focus:outline-none focus:ring"
             >
-            <textarea
-              id="message"
-              rows="4"
-              class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="Write your thoughts here..."
-            ></textarea>
-          </div>
-              <input
-            type="submit"
-            value="Regenerate GeminiAI description"
-            class="text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
-          />
+              <img
+                src="{{ url_for('static', filename='gemini_icon.svg') }}"
+                alt="Gemini Icon"
+                class="w-8 h-8"
+              />
+            </button>
+          </form>
+
           <div class="">
             <label
               for="message"
@@ -182,14 +203,19 @@
               id="message"
               rows="4"
               class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="Write your thoughts here..."
-            ></textarea>
+            >
+{{item.narration_text}}</textarea
+            >
           </div>
+          <input
+            type="submit"
+            value="Save scene"
+            class="items-end text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
+          />
         </div>
       </li>
       {% endfor %}
     </ul>
-
   </div>
 </div>
 
@@ -207,7 +233,10 @@
   }
 </script>
 
-  <script src="https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&libraries=places&callback=initAutocomplete" async defer></script>
-
+<script
+  src="https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&libraries=places&callback=initAutocomplete"
+  async
+  defer
+></script>
 
 {% endblock %}

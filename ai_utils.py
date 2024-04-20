@@ -31,23 +31,27 @@ def describe_video(video_file_path):
 
     except:
 
-        return "Error getting description from gemini"
+        return "Error getting description from Gemini"
 
 
 def describe_image(image_path):
 
     model = GenerativeModel(model_name="gemini-pro-vision")
 
-    image_content = Part.from_image(Image.load_from_file(image_path))
+    try:
+        image_content = Part.from_image(Image.load_from_file(image_path))
 
-    response = model.generate_content(
-        [
-            image_content,
-            """Describe the image.""",
-        ]
-    )
+        response = model.generate_content(
+            [
+                image_content,
+                """Describe the image.""",
+            ]
+        )
 
-    return response.text
+        return response.text
+
+    except:
+        return "Error getting description from Gemini"
 
 
 def parse_json_from_gemini(json_str: str):
@@ -68,15 +72,16 @@ def parse_json_from_gemini(json_str: str):
 
 
 def generate_descriptions(dir_path, mediaitems):
+
+    video_extensions = (".mov", ".mp4", ".avi", ".flv", ".wmv")
     for item in mediaitems:
 
         if "description" in item and item["description"]:
             continue
 
         file_path = os.path.join(dir_path, item["filename"])
-        if file_path.lower().endswith(
-            (".mov", ".mpeg", ".mp4", ".mpg", ".avi", ".wmv", ".mpegps", ".flv")
-        ):
+
+        if file_path.lower().endswith(video_extensions):
 
             item["description"] = describe_video(file_path)
 
@@ -85,7 +90,7 @@ def generate_descriptions(dir_path, mediaitems):
             item["description"] = describe_image(file_path)
 
     mediaitems.sort(key=lambda item: item["datetime"])
-    with open("mediaitems.json", "w") as json_file:
+    with open("./data/mediaitems.json", "w") as json_file:
         json.dump(mediaitems, json_file)
 
     return mediaitems
@@ -97,7 +102,7 @@ def get_script(mediaitems):
     result = None
     while result is None:
         response = model.generate_content(
-            """You excel at narrating short videos like Tiktok reels or Youtube shorts. You will be given a json list with objects. This list is a chronological list of photos and videos. Using the information about the place, datetime and description of the photo or video, come up with a short script to narrate the whole trip which can be used in a video merging all these photos and videos. If a particular media item has a missing datetime or place_name field, infer where it would fit in along with the context of the other items. Do not make any assumptions and strictly stick to describing the trip like a story in first person and past tense. Make the narration more continous and like a person describing the entire trip casually to their family and friends like a story. Include narration for every scene. Do not repeat any photo or video in the list. For videos ensure that the narration will not run over more than the video length given in duration field. Keep the sentences short for each scene. Output JSON only in the format like in the example below:
+            """You excel at narrating short videos like Tiktok reels or Youtube shorts. You will be given a json list with objects. This list is a chronological list of photos and videos. Using the information about the place, datetime and description of the photo or video, come up with a short script to narrate the whole trip which can be used in a video merging all these photos and videos. If a particular media item has a missing datetime or place field, infer where it would fit in along with the context of the other items. Do not make any assumptions and strictly stick to describing the trip like a story in first person and past tense. Make the narration more continous and like a person describing the entire trip casually to their family and friends like a story. Include narration for every scene. Do not repeat any photo or video in the list. For videos ensure that the narration will not run over more than the video length given in duration field. Keep the sentences short for each scene and include all photos and videos. Output JSON only in the format like in the example below:
     \n{
   "title": "Our Grand Canyon Adventure",
   "description": "Join us on our unforgettable road trip to the Grand Canyon, as we explore stunning landscapes and experience the beauty of one of the world's natural wonders.",
@@ -146,4 +151,72 @@ def get_script(mediaitems):
         )
         result = parse_json_from_gemini(response.text)
 
-    return result
+        print(result)
+
+        with open("data/mediaitems.json", "r") as file:
+            mediaitems = json.load(file)
+
+        for mediaitem in mediaitems:
+            for script_item in result["scenes"]:
+                if mediaitem["filename"] == script_item["media_source"]:
+
+                    mediaitem["narration_text"] = script_item["text"]
+                    mediaitem["scene_number"] = script_item["scene_number"]
+
+        mediaitems.sort(key=lambda x: x["scene_number"])
+
+        with open("./data/mediaitems.json", "w") as json_file:
+            json.dump(mediaitems, json_file)
+
+    return mediaitems
+
+
+def synthesize_text(text, filename):
+    """Synthesizes speech from the input string of text."""
+    from google.cloud import texttospeech
+
+    client = texttospeech.TextToSpeechClient()
+
+    input_text = texttospeech.SynthesisInput(text=text)
+
+    # Note: the voice can also be specified by name.
+    # Names of voices can be retrieved with client.list_voices().
+    voice = texttospeech.VoiceSelectionParams(
+        language_code="en-US",
+        name="en-US-Journey-F",
+        ssml_gender=texttospeech.SsmlVoiceGender.FEMALE,
+    )
+
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=texttospeech.AudioEncoding.MP3
+    )
+
+    response = client.synthesize_speech(
+        request={"input": input_text, "voice": voice, "audio_config": audio_config}
+    )
+
+    # The response's audio_content is binary.
+    with open(filename + ".mp3", "wb") as out:
+        out.write(response.audio_content)
+        print("Audio content written to file " + filename)
+
+
+def list_voices():
+    """Lists the available voices."""
+    from google.cloud import texttospeech
+
+    client = texttospeech.TextToSpeechClient()
+
+    # Performs the list voices request
+    voices = client.list_voices()
+
+    english_voices = []
+
+    for voice in voices.voices:
+
+        for language_code in voice.language_codes:
+            if "en" in language_code:
+
+                english_voices.append(voice)
+
+    return english_voices

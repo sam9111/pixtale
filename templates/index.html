@@ -7,17 +7,17 @@
         With Pixtale, you can get videos of your trips narrated by GeminiAI!
         Before all of that magic, please upload a zip file of the folder of all
         your trip photos and videos. Or you could also just share the link to
-        your Google Photos album and your media items (only the
-        first 10 media items) will be fetched from that.
-        A max of 10 photos and videos is recommended. 
+        your Google Photos album and your media items (only the first 10 media
+        items) will be fetched from that. A max of 10 photos and videos is
+        recommended.
       </p>
     </div>
 
-
-     
-<input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" name="zip_file" type="file">
-
-
+    <input
+      class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+      name="zip_file"
+      type="file"
+    />
 
     <div class="flex items-center">
       <div class="border-b border-gray-400 w-full"></div>
@@ -35,9 +35,10 @@
         type="text"
         id="photos"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-
       />
     </div>
+
+    <p id="error-message" class="text-red-500 text-sm">{{ error }}</p>
 
     <input
       type="submit"

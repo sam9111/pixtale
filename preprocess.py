@@ -104,7 +104,7 @@ def update_places(mediaitems):
         if item["latitude"] or item["longitude"]:
             item["place"] = get_place_name(item["latitude"], item["longitude"])
 
-    with open("mediaitems.json", "w") as json_file:
+    with open("./data/mediaitems.json", "w") as json_file:
         json.dump(mediaitems, json_file)
 
     return mediaitems
@@ -146,6 +146,9 @@ def extract_datetime_image(image_path):
 
 def extract_metadata(dir_path):
 
+    image_extensions = (".jpg", ".jpeg", ".png", ".gif", ".heic")
+    video_extensions = (".mov", ".mp4", ".avi", ".flv", ".wmv")
+
     remove_duplicates(dir_path)
 
     metadata_list = []
@@ -156,7 +159,7 @@ def extract_metadata(dir_path):
 
         print("Extracting metadata from {}".format(file))
 
-        if file.lower().endswith((".mov", ".mp4", ".avi", ".flv", ".wmv")):
+        if file.lower().endswith(video_extensions):
             type = "video"
             print("{} is a video file".format(file))
             video_path = os.path.join(dir_path, file)
@@ -164,7 +167,7 @@ def extract_metadata(dir_path):
 
             date_time = extract_datetime_video(video_path)
 
-        else:
+        elif file.lower().endswith(image_extensions):
 
             type = "image"
 
@@ -187,6 +190,9 @@ def extract_metadata(dir_path):
 
                 os.remove(heic_path)
                 print("Removed {} from directory".format(file))
+
+        else:
+            continue
 
         metadata = {
             "filename": file,
@@ -223,7 +229,7 @@ def extract_metadata(dir_path):
     for item in metadata_list:
         item["datetime"] = item["datetime"].isoformat()
 
-    with open("mediaitems.json", "w") as json_file:
+    with open("./data/mediaitems.json", "w") as json_file:
         json.dump(metadata_list, json_file)
 
     return metadata_list
