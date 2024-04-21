@@ -90,6 +90,13 @@ def regenerate_description():
 @app.route("/result")
 def get_video():
 
+    with open("data/script.json", "r") as file:
+        script = json.load(file)
+
+    title = script["title"]
+    caption = script["caption"]
+    hashtags = " ".join(script["hashtags"])
+
     with open("data/mediaitems.json", "r") as file:
         mediaitems = json.load(file)
 
@@ -105,6 +112,9 @@ def get_video():
         google_api_key=google_api_key,
         audio_file=audio_file,
         voices_list=voices_list(),
+        title=title,
+        caption=caption,
+        hashtags=hashtags,
     )
 
 

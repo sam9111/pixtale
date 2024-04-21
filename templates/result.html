@@ -1,13 +1,23 @@
 {% extends 'base.html' %} {% block main %}
 
 <div class="flex m-auto h-screen space-y-8 py-10 mx-10">
-  <div class="flex flex-col space-y-8 w-1/2 items-start">
+  <div class="flex flex-col space-y-8 w-1/2 items-start ml-4">
     <h4 class="text-2xl font-bold dark:text-white"></h4>
 
     <video controls width="320" height="240">
       <source src="static/public/result/combined_video.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
+
+    <h5 class="text-xl font-bold dark:text-white text-gray-700">{{ title }}</h5>
+
+        <p class="text-gray-500 dark:text-gray-400">
+          {{ caption }}
+    </p>
+        <p class="text-gray-500 dark:text-gray-400">
+          {{ hashtags }}
+    </p>
+
 
     <div
       class="flex justify-center items-center p-2 bg-gray-100 rounded-lg shadow"
@@ -68,10 +78,7 @@
       AI - Generated Video Script
     </h4>
     <p class="text-gray-500 dark:text-gray-400">
-      Track work across the enterprise through an open, collaborative platform.
-      Link issues across Jira and ingest data from other software development
-      tools, so your IT support and operations teams have richer contextual
-      information to rapidly respond to requests, incidents, and changes.
+      And that's it! Now you have a video with narration all with the magic of Gemini AI. And also captions and hashtags to share on social media! Here you can make changes to each scene so that the narration gets updated. Also fill in any missing information like the date, time or place so that Gemini AI can make a new script with that information.
     </p>
 
     <ul class="w-full space-y-8">
