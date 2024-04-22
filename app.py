@@ -26,14 +26,80 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/save_voice", methods=["POST"])
+def save_voice():
+
+    # Check if the selected voice is in the voices_list
+    selected_voice = json.loads(request.json.get("selected_voice").replace("'", '"'))
+
+    # Save the selected voice to the voice.json file
+    voice_data = {"selected_voice": selected_voice}
+    with open("data/voice.json", "w") as voice_file:
+        json.dump(voice_data, voice_file)
+
+    with open("data/mediaitems.json", "r") as file:
+        mediaitems = json.load(file)
+
+    create_video(mediaitems, public, selected_voice)
+
+    print("generated audio")
+
+    return "Voice saved successfully"
+
+
+@app.route("/regenerate_script", methods=["POST"])
+def regenerate_script():
+
+    print("regenerate script")
+
+    with open("data/mediaitems.json", "r") as file:
+        mediaitems = json.load(file)
+
+    result_dir = os.path.join(public, "result")
+
+    if os.path.exists(result_dir):
+        shutil.rmtree(result_dir)
+        print(f"Creating directory: {result_dir}")
+        os.makedirs(result_dir)
+
+    mediaitems = get_script(mediaitems)
+
+    # Load the selected voice from the voice.json file
+    with open("data/voice.json", "r") as voice_file:
+        GLOBAL_VOICE = json.load(voice_file)["selected_voice"]
+
+    create_video(mediaitems, public, GLOBAL_VOICE)
+
+    return redirect(url_for("get_video"))
+
+
+@app.route("/regenerate_video", methods=["POST"])
+def regenerate_video():
+
+    print("recreate video")
+
+    with open("data/mediaitems.json", "r") as file:
+        mediaitems = json.load(file)
+
+    with open("data/voice.json", "r") as voice_file:
+        GLOBAL_VOICE = json.load(voice_file)["selected_voice"]
+
+    create_video(mediaitems, public, GLOBAL_VOICE)
+
+    return redirect(url_for("get_video"))
+
+
 @app.route("/save", methods=["POST"])
 def save_mediaitems():
+
+    with open("data/voice.json", "r") as voice_file:
+        GLOBAL_VOICE = json.load(voice_file)["selected_voice"]
 
     with open("data/mediaitems.json", "r") as file:
         mediaitems = json.load(file)
 
     item_filename = request.form.get("filename")
-    for item in mediaitems:
+    for i, item in enumerate(mediaitems):
 
         if item["filename"] == item_filename:
 
@@ -100,21 +166,19 @@ def get_video():
     with open("data/mediaitems.json", "r") as file:
         mediaitems = json.load(file)
 
-    audio_file = (
-        "speedup_audio.mp3"
-        if os.path.exists(os.path.join(public, "result", "speedup_audio.mp3"))
-        else "final_audio.mp3"
-    )
+    with open("data/voice.json", "r") as voice_file:
+        GLOBAL_VOICE = json.load(voice_file)["selected_voice"]
 
+    print(GLOBAL_VOICE)
     return render_template(
         "result.html",
         mediaitems=mediaitems,
         google_api_key=google_api_key,
-        audio_file=audio_file,
         voices_list=voices_list(),
         title=title,
         caption=caption,
         hashtags=hashtags,
+        voice=GLOBAL_VOICE["voice"],
     )
 
 
@@ -167,7 +231,22 @@ def generate_video():
 
         os.makedirs(os.path.join(public, "result"), exist_ok=True)
 
-        create_video(mediaitems, public)
+        if not os.path.exists("data/voice.json"):
+            default_voice = {
+                "language_codes": "en-US",
+                "ssml_gender": "FEMALE",
+                "name": "en-US-Journey-F",
+                "voice": "en-US-Journey-F-FEMALE",
+            }
+
+            with open("data/voice.json", "w+") as voice_file:
+                json.dump({"selected_voice": default_voice}, voice_file)
+            GLOBAL_VOICE = default_voice
+        else:
+            with open("data/voice.json", "r") as voice_file:
+                GLOBAL_VOICE = json.load(voice_file)["selected_voice"]
+
+        create_video(mediaitems, public, GLOBAL_VOICE)
 
         return redirect("/result")
 

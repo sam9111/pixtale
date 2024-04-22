@@ -1,3 +1,5 @@
+import os
+from utils import *
 import shutil
 from moviepy.editor import (
     VideoFileClip,
@@ -14,127 +16,110 @@ from moviepy.video import fx as vfx
 from moviepy.video.fx import speedx
 from ai_utils import *
 
-clips = []
 
-# Define a standard resolution
-standard_resolution = (1080, 1920)  # Width x Height
+def get_audio_duration(filepath):
+    """Get the duration of an audio file using ffprobe with os.system."""
+    # Temporary file to store the output of ffprobe
+    temp_file = "temp_duration.txt"
+    cmd = f"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {filepath} > {temp_file}"
+    os.system(cmd)
+
+    # Read the duration from the temporary file
+    with open(temp_file, "r") as file:
+        duration = file.read().strip()
+
+    # Remove the temporary file
+    os.remove(temp_file)
+
+    try:
+        return float(duration)
+    except ValueError:
+        return None
 
 
-def create_video(mediaitems, dir_path):
+def get_video_duration(filepath):
+    """Get the duration of a video file using ffprobe with os.system."""
+    # Temporary file to store the output of ffprobe
+    temp_file = "temp_duration.txt"
+    cmd = f"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {filepath} > {temp_file}"
+    os.system(cmd)
 
-    os.makedirs("./audio", exist_ok=True)
+    # Read the duration from the temporary file
+    with open(temp_file, "r") as file:
+        duration = file.read().strip()
 
+    # Remove the temporary file
+    os.remove(temp_file)
+
+    try:
+        return float(duration)
+    except ValueError:
+        return None
+
+
+# Usage example:
+# duration = get_video_duration_using_os_system("/path/to/your/video.mp4")
+
+
+def create_video(mediaitems, dir_path, global_voice):
+
+    print("global voice", global_voice)
+    image_extensions = (".jpg", ".jpeg", ".png", ".gif", ".heic")
+    video_extensions = (".mov", ".mp4", ".avi", ".flv", ".wmv")
+    # Ensure the result directory exists
+    result_dir = os.path.join(dir_path, "result")
+
+    print("result directory: ", result_dir)
+
+    os.makedirs(result_dir, exist_ok=True)
+
+    audio_dir = os.path.join(dir_path, "result/audio")
+
+    os.makedirs(audio_dir, exist_ok=True)
+
+    # File to store list of files to concatenate
+
+    filelist_path = os.path.join(result_dir, "filelist.txt")
     audio_clips = []
-    # Process each scene
-    for i in range(len(mediaitems)):
+    with open(filelist_path, "w+") as filelist:
+        for i, item in enumerate(mediaitems):
+            filepath = os.path.join(dir_path, item["filename"]).lower()
 
-        item = mediaitems[i]
-        text = item["narration_text"]
+            print("file: ", filepath)
 
-        filepath = os.path.join(dir_path, item["filename"]).lower()
+            audio_path = os.path.join(audio_dir, str(i) + ".mp3")
 
-        if os.path.exists(filepath):
+            synthesize_text(
+                item["narration_text"],
+                os.path.join(audio_dir, str(i)),
+                language_code=global_voice["language_codes"],
+                name=global_voice["name"],
+                gender=global_voice["ssml_gender"],
+            )
 
-            if not os.path.exists("./audio/" + str(i) + ".mp3"):
-
-                synthesize_text(text, "./audio/" + str(i))
-
-            audio_clip = AudioFileClip("./audio/" + str(i) + ".mp3")
-
-            duration = audio_clip.duration
-
-            if filepath.endswith((".mp4", ".mov")):
-                clip = VideoFileClip(filepath)
-
-                if duration < clip.duration:
-
-                    clip = clip.subclip(0, duration)
-
-                clip = clip.resize(
-                    newsize=(standard_resolution[0], standard_resolution[1])
-                )
-
-            else:
-                clip = ImageClip(filepath).set_duration(duration)
-
-            # txt_clip = (
-            #     TextClip(
-            #         scene["narration"]["text"],
-            #         color="white",
-            #         font="Arial",
-            #         fontsize=50,
-            #         method="caption",
-            #         stroke_width=2,
-            #     )
-            #     .set_position("bottom")
-            #     .set_duration(float(duration))
-            # )
-            # clip = CompositeVideoClip([clip, txt_clip])
-            clips.append(clip)
-
+            audio_duration = get_audio_duration(audio_path)
+            audio_clip = AudioFileClip(audio_path)
             audio_clips.append(audio_clip)
 
-    shutil.rmtree("./audio")
+            if filepath.lower().endswith(image_extensions):
+                # Convert image to video clip
+                video_clip_path = os.path.join(result_dir, f"clip_{i}.mp4")
+                cmd = f'ffmpeg -y -loop 1 -i {filepath} -c:v libx264 -t {audio_duration} -pix_fmt yuv420p -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" {video_clip_path}'
+                os.system(cmd)
+            elif filepath.lower().endswith(video_extensions):
+                # Ensure video clip is of the correct format and resolution
+                video_clip_path = os.path.join(result_dir, f"clip_{i}.mp4")
+                video_duration = get_video_duration(filepath)
+                cmd = f"ffmpeg -y -i {filepath} -c:v libx264 -t {video_duration} -pix_fmt yuv420p -vf scale=1080:1920 {video_clip_path}"
+                os.system(cmd)
 
-    # Concatenate all clips
-    final_clip = concatenate_videoclips(clips, method="compose")
-
-    final_audio_clip = concatenate_audioclips(audio_clips)
-
-    final_audio_path = os.path.join(dir_path, "result/final_audio.mp3")
-
-    final_audio_clip.write_audiofile(final_audio_path)
-
-    final_video_path = os.path.join(dir_path, "result/final_video.mp4")
-
-    final_clip.write_videofile(final_video_path)
-
-    combined_video_path = os.path.join(dir_path, "result/combined_video.mp4")
-
-    if final_clip.duration != final_audio_clip.duration:
-
-        if final_clip.duration > final_audio_clip.duration:
-            # Speed up the video clip to match the audio clip's duration
-            speed_factor = final_clip.duration / final_audio_clip.duration
-            final_clip = final_clip.fx(vfx.speedx, speed_factor)
-
-            # Write the result to a file
-
-            new_video_path = os.path.join(dir_path, "result/speedup_video.mp4")
-
-            final_clip.write_videofile(new_video_path)
-
-            cmd = "ffmpeg -y -i {} -i {} -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac {}".format(
-                new_video_path, final_audio_path, combined_video_path
-            )
+            output_clip_path = os.path.join(result_dir, f"output_clip_{i}.mp4")
+            cmd = f"ffmpeg -y -i {video_clip_path} -i {audio_path} -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac {output_clip_path}"
             os.system(cmd)
-
-        else:
-            # Speed up the audio clip to match the video clip's duration
-
-            speed_factor = final_audio_clip.duration / final_clip.duration
-
-            new_audio_path = os.path.join(dir_path, "result/speedup_audio.mp3")
-
-            cmd = 'ffmpeg -y -i {} -filter:a "atempo={}" {}'.format(
-                final_audio_path, speed_factor, new_audio_path
-            )
-
-            os.system(cmd)
-
-            cmd = "ffmpeg -y -i {} -i {} -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac {}".format(
-                final_video_path, new_audio_path, combined_video_path
-            )
-            os.system(cmd)
-
-    else:
-
-        cmd = (
-            "ffmpeg -y -i {} -i {} -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac {}".format(
-                final_video_path, final_audio_path, combined_video_path
-            )
-        )
-        os.system(cmd)
+            filelist.write(f"file 'output_clip_{i}.mp4'\n")
+    combined_video_path = os.path.join(result_dir, "combined_video.mp4")
+    cmd = f"ffmpeg -y -f concat -safe 0 -i {filelist_path} -c:v libx264 -pix_fmt yuv420p -crf 23 -preset medium {combined_video_path}"
+    os.system(cmd)
 
 
 def voices_list():

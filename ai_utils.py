@@ -97,6 +97,8 @@ def generate_descriptions(dir_path, mediaitems):
 
 
 def get_script(mediaitems):
+
+    print("getting script...")
     model = GenerativeModel(model_name="gemini-1.5-pro-preview-0409")
 
     result = None
@@ -152,28 +154,32 @@ def get_script(mediaitems):
         )
         result = parse_json_from_gemini(response.text)
 
-        with open("./data/script.json", "w") as json_file:
-            json.dump(result, json_file)
+        print(result)
 
-        with open("data/mediaitems.json", "r") as file:
-            mediaitems = json.load(file)
+    with open("./data/script.json", "w") as json_file:
+        json.dump(result, json_file)
 
-        for mediaitem in mediaitems:
-            for script_item in result["scenes"]:
-                if mediaitem["filename"] == script_item["media_source"]:
+    with open("data/mediaitems.json", "r") as file:
+        mediaitems = json.load(file)
 
-                    mediaitem["narration_text"] = script_item["text"]
-                    mediaitem["scene_number"] = script_item["scene_number"]
+    for mediaitem in mediaitems:
+        for script_item in result["scenes"]:
+            if mediaitem["filename"] == script_item["media_source"]:
 
-        mediaitems.sort(key=lambda x: x["scene_number"])
+                mediaitem["narration_text"] = script_item["text"]
+                mediaitem["scene_number"] = script_item["scene_number"]
 
-        with open("./data/mediaitems.json", "w") as json_file:
-            json.dump(mediaitems, json_file)
+    mediaitems.sort(key=lambda x: x["scene_number"])
+
+    with open("./data/mediaitems.json", "w") as json_file:
+        json.dump(mediaitems, json_file)
 
     return mediaitems
 
 
-def synthesize_text(text, filename):
+def synthesize_text(
+    text, filename, language_code="en-US", name="en-US-Journey-F", gender="FEMALE"
+):
     """Synthesizes speech from the input string of text."""
     from google.cloud import texttospeech
 
@@ -184,9 +190,13 @@ def synthesize_text(text, filename):
     # Note: the voice can also be specified by name.
     # Names of voices can be retrieved with client.list_voices().
     voice = texttospeech.VoiceSelectionParams(
-        language_code="en-US",
-        name="en-US-Journey-F",
-        ssml_gender=texttospeech.SsmlVoiceGender.FEMALE,
+        language_code=language_code,
+        name=name,
+        ssml_gender=(
+            texttospeech.SsmlVoiceGender.FEMALE
+            if gender == "FEMALE"
+            else texttospeech.SsmlVoiceGender.MALE
+        ),
     )
 
     audio_config = texttospeech.AudioConfig(

@@ -4,46 +4,53 @@
   <div class="flex flex-col space-y-8 w-1/2 items-start ml-4">
     <h4 class="text-2xl font-bold dark:text-white"></h4>
 
-    <video controls width="320" height="240">
-      <source src="static/public/result/combined_video.mp4" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-
-    <h5 class="text-xl font-bold dark:text-white text-gray-700">{{ title }}</h5>
-
-        <p class="text-gray-500 dark:text-gray-400">
-          {{ caption }}
-    </p>
-        <p class="text-gray-500 dark:text-gray-400">
-          {{ hashtags }}
-    </p>
-
-
     <div
-      class="flex justify-center items-center p-2 bg-gray-100 rounded-lg shadow"
+      class="flex flex-col items-center justify-center space-y-8 max-w-lg p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
     >
-      <audio controls>
+      <video muted autoplay controls width="320" height="240">
         <source
-          src="{{ url_for('static', filename='public/result/' ~ audio_file) }}"
-          type="audio/mp3"
+          src="static/public/result/combined_video.mp4"
+          type="video/mp4"
         />
-        Your browser does not support the audio element.
-      </audio>
-    </div>
+        Your browser does not support the video tag.
+      </video>
 
-    <form action="/save" method="post">
-      <div class="flex items-center gap-2">
+      <h5 class="text-xl font-bold dark:text-white text-gray-700">
+        {{ title }}
+      </h5>
+
+      <p class="text-gray-500 dark:text-gray-400">{{ caption }}</p>
+      <p class="text-gray-500 dark:text-gray-400">{{ hashtags }}</p>
+    </div>
+  </div>
+
+  <div class="w-full space-y-8">
+    <h4 class="text-2xl font-bold dark:text-white">
+      AI - Generated Video Script
+    </h4>
+
+    <p class="text-gray-500 dark:text-gray-400">
+      And that's it! Now you have a video with narration all with the magic of
+      Gemini AI. And also captions and hashtags to share on social media! Here
+      you can make changes to each scene so that the narration gets updated.
+      Also fill in any missing information like the date, time or place so that
+      Gemini AI can make a new script with that information.
+    </p>
+
+    <div class="flex justify-between items-center">
+      <div class="flex flex-row items-center gap-2">
         <select
-          id="underline_select"
+          name="selected_voice"
+          id="select_voice"
           class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
         >
+          <option selected value="{{voice}}">{{ voice }}</option>
           {% for voice in voices_list %}
 
           <option value="{{voice}}">{{voice.voice}}</option>
 
           {% endfor %}
         </select>
-
         <a
           href="https://cloud.google.com/text-to-speech/docs/voices?hl=en"
           target="_blank"
@@ -65,21 +72,45 @@
           </svg>
         </a>
       </div>
-      <input
-        type="submit"
-        value="Regenerate video"
-        class="mt-4 text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
-      />
-    </form>
-  </div>
+      <div class="flex flex-row items-center gap-2">
+        <form action="/regenerate_video" method="post">
+          <input
+  
+            data-tooltip-target="tooltip-video"
+            type="submit"
+            value="Regenerate video"
+            class="mt-4 text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
+          />
 
-  <div class="w-full space-y-8">
-    <h4 class="text-2xl font-bold dark:text-white">
-      AI - Generated Video Script
-    </h4>
-    <p class="text-gray-500 dark:text-gray-400">
-      And that's it! Now you have a video with narration all with the magic of Gemini AI. And also captions and hashtags to share on social media! Here you can make changes to each scene so that the narration gets updated. Also fill in any missing information like the date, time or place so that Gemini AI can make a new script with that information.
-    </p>
+          <div
+            id="tooltip-video"
+            role="tooltip"
+            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+          >
+            Regenerate video only
+            <div class="tooltip-arrow" data-popper-arrow></div>
+          </div>
+        </form>
+        <form action="/regenerate_script" method="post" class="">
+          <input
+
+            data-tooltip-target="tooltip-script"
+            type="submit"
+            value="Regenerate script"
+            class="mt-4 text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
+          />
+
+          <div
+            id="tooltip-script"
+            role="tooltip"
+            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+          >
+            Regenerate script and video together
+            <div class="tooltip-arrow" data-popper-arrow></div>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <ul class="w-full space-y-8">
       {% for item in mediaitems %}
@@ -87,7 +118,7 @@
       <form
         action="/save"
         method="post"
-        class="flex bg-gray-100 dark:bg-gray-700 p-6 rounded-lg"
+        class="flex bg-gray-200 dark:bg-gray-700 p-6 rounded-lg"
       >
         <div class="space-y-4">
           {% if item.type == 'video' %}
@@ -217,8 +248,7 @@
           <button
             id="regenerate-description-button-{{ loop.index }}"
             class="p-2 rounded-md focus:outline-none focus:ring"
-              data-filename="{{ item.filename }}"
-
+            data-filename="{{ item.filename }}"
           >
             <img
               src="{{ url_for('static', filename='gemini_icon.svg') }}"
@@ -248,11 +278,34 @@
 {{item.narration_text}}</textarea
             >
           </div>
+          <div
+            class="flex justify-center items-center p-2 bg-gray-100 rounded-lg shadow"
+          >
+            <audio controls>
+              <source
+                src="static/public/result/audio/{{ loop.index0 }}.mp3"
+                type="audio/mp3"
+              />
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+
           <input
+            data-tooltip-placement="right"
+            data-tooltip-target="tooltip-scene"
             type="submit"
             value="Save scene"
             class="items-end text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
           />
+
+          <div
+            id="tooltip-scene"
+            role="tooltip"
+            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+          >
+            Save details for this scene and regenerate narration audio
+            <div class="tooltip-arrow" data-popper-arrow></div>
+          </div>
         </div>
       </form>
 
@@ -296,11 +349,11 @@
   // Ensure the initAutocomplete function is available globally
   window.initAutocomplete = initAutocomplete;
 
-function addRegenerateDescriptionEventListener(button) {
+  function addRegenerateDescriptionEventListener(button) {
     button.addEventListener("click", function (e) {
       e.preventDefault(); // Prevent the default form submission if the button is inside a form
 
-      var filename = button.getAttribute('data-filename'); // Get the filename from the data attribute
+      var filename = button.getAttribute("data-filename"); // Get the filename from the data attribute
 
       fetch("/regenerate_description", {
         method: "POST",
@@ -312,23 +365,50 @@ function addRegenerateDescriptionEventListener(button) {
           filename: filename, // Include the filename in the request body
         }),
       })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        window.location.href = "/result?ts=" + new Date().getTime();
-      })
-      
-      .catch((error) => {
-        console.error(
-          "There has been a problem with your fetch operation:",
-          error
-        );
-      });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          window.location.href = "/result?ts=" + new Date().getTime();
+        })
+
+        .catch((error) => {
+          console.error(
+            "There has been a problem with your fetch operation:",
+            error
+          );
+        });
     });
   }
-  document.querySelectorAll("[id^='regenerate-description-button-']").forEach(addRegenerateDescriptionEventListener);
+  document
+    .querySelectorAll("[id^='regenerate-description-button-']")
+    .forEach(addRegenerateDescriptionEventListener);
 
+  document
+    .getElementById("select_voice")
+    .addEventListener("change", function () {
+      var selectedVoice = this.value;
+      fetch("/save_voice", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Include other headers as needed, such as CSRF tokens or authentication
+        },
+        body: JSON.stringify({ selected_voice: selectedVoice }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          window.location.href = "/result?ts=" + new Date().getTime();
+        })
+        .then((result) => {
+          console.log("Voice saved:", result);
+        })
+        .catch((error) => {
+          console.error("Error saving voice:", error);
+        });
+    });
 </script>
 
 {% endblock %}
