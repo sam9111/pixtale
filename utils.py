@@ -81,6 +81,7 @@ def create_video(mediaitems, dir_path, global_voice):
 
     filelist_path = os.path.join(result_dir, "filelist.txt")
     audio_clips = []
+    video_clips = []
     with open(filelist_path, "w+") as filelist:
         for i, item in enumerate(mediaitems):
             filepath = os.path.join(dir_path, item["filename"]).lower()
@@ -110,16 +111,18 @@ def create_video(mediaitems, dir_path, global_voice):
                 # Ensure video clip is of the correct format and resolution
                 video_clip_path = os.path.join(result_dir, f"clip_{i}.mp4")
                 video_duration = get_video_duration(filepath)
-                cmd = f"ffmpeg -y -i {filepath} -c:v libx264 -t {video_duration} -pix_fmt yuv420p -vf scale=1080:1920 {video_clip_path}"
+                cmd = f"ffmpeg -y -i {filepath} -c:v libx264 -t {audio_duration} -pix_fmt yuv420p -vf scale=1080:1920 {video_clip_path}"
                 os.system(cmd)
 
             output_clip_path = os.path.join(result_dir, f"output_clip_{i}.mp4")
             cmd = f"ffmpeg -y -i {video_clip_path} -i {audio_path} -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac {output_clip_path}"
             os.system(cmd)
             filelist.write(f"file 'output_clip_{i}.mp4'\n")
-    combined_video_path = os.path.join(result_dir, "combined_video.mp4")
-    cmd = f"ffmpeg -y -f concat -safe 0 -i {filelist_path} -c:v libx264 -pix_fmt yuv420p -crf 23 -preset medium {combined_video_path}"
-    os.system(cmd)
+            video_clips.append(VideoFileClip(output_clip_path))
+
+    concatenate_videoclips(video_clips).write_videofile(
+        os.path.join(result_dir, "final_video.mp4")
+    )
 
 
 def voices_list():

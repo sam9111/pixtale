@@ -21,6 +21,8 @@ register_heif_opener()
 def extract_gps_from_video(video_path):
     metadata = pxi.get_json(video_path)
 
+    print(metadata)
+
     try:
 
         coordinates = metadata[0]["QuickTime:GPSCoordinates"]

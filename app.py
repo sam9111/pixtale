@@ -8,6 +8,7 @@ from utils import *
 import shutil
 from dotenv import load_dotenv
 from time import time
+from google_auth import *
 
 # Load environment variables from a .env file
 load_dotenv()
@@ -23,7 +24,9 @@ google_api_key = os.environ.get("GOOGLE_MAPS_KEY")
 @app.route("/")
 @app.route("/index")
 def index():
-    return render_template("index.html")
+
+    albums = get_all_albums()
+    return render_template("index.html", albums=albums)
 
 
 @app.route("/save_voice", methods=["POST"])
@@ -187,36 +190,46 @@ def generate_video():
 
     try:
 
-        zip_file = request.files["zip_file"]
-        zip_file.save(
-            "./data/mediaitems.zip"
-        )  # Save the uploaded zip file to a destination folder
-
         if os.path.exists(public):
             print(f"Removing existing directory: {public}")
             shutil.rmtree(public)
             print(f"Creating directory: {public}")
             os.makedirs(public)
 
-        with zipfile.ZipFile("./data/mediaitems.zip", "r") as zip_ref:
-            for member in zip_ref.infolist():
-                # Check if the member is a file and not a directory
-                if not member.is_dir() and not member.filename.startswith("__MACOSX/"):
-                    # Extract the file to data_dir with the same name
-                    zip_ref.extract(member, public)
-                    # Move the file to the root of public if it was in a subfolder
-                    source_path = os.path.join(public, member.filename)
-                    target_path = os.path.join(
-                        public, os.path.basename(member.filename)
-                    )
-                    shutil.move(source_path, target_path)
+        zip_file = request.files["zip_file"]
 
-        for root, dirs, files in os.walk(public):
-            for name in files:
-                if name.startswith(".") or not os.path.isfile(os.path.join(root, name)):
-                    os.remove(os.path.join(root, name))
-            if not os.listdir(root):
-                os.rmdir(root)
+        if zip_file:
+            zip_file.save(
+                "./data/mediaitems.zip"
+            )  # Save the uploaded zip file to a destination folder
+
+            with zipfile.ZipFile("./data/mediaitems.zip", "r") as zip_ref:
+                for member in zip_ref.infolist():
+                    # Check if the member is a file and not a directory
+                    if not member.is_dir() and not member.filename.startswith(
+                        "__MACOSX/"
+                    ):
+                        # Extract the file to data_dir with the same name
+                        zip_ref.extract(member, public)
+                        # Move the file to the root of public if it was in a subfolder
+                        source_path = os.path.join(public, member.filename)
+                        target_path = os.path.join(
+                            public, os.path.basename(member.filename)
+                        )
+                        shutil.move(source_path, target_path)
+
+            for root, dirs, files in os.walk(public):
+                for name in files:
+                    if name.startswith(".") or not os.path.isfile(
+                        os.path.join(root, name)
+                    ):
+                        os.remove(os.path.join(root, name))
+                if not os.listdir(root):
+                    os.rmdir(root)
+        else:
+            album = json.loads(request.form.get("album").replace("'", '"'))
+
+            download_album_items(album["id"], public)
 
         mediaitems = extract_metadata(public)
 

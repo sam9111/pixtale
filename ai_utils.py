@@ -104,7 +104,16 @@ def get_script(mediaitems):
     result = None
     while result is None:
         response = model.generate_content(
-            """You excel at narrating short videos like Tiktok reels or Youtube shorts. You will be given a json list with objects. This list is a chronological list of photos and videos. Using the information about the place, date, time and description of the photo or video, come up with a short script to narrate the whole trip which can be used in a video merging all these photos and videos. If a particular media item has a missing date, time or place field, infer where it would fit in along with the context of the other items. Do not make any assumptions and strictly stick to describing the trip like a story in first person and past tense. Make the narration more continous and like a person describing the entire trip casually to their family and friends like a story. Include narration for every scene. Do not repeat any photo or video in the list. For videos ensure that the narration will not run over more than the video length given in duration field. Keep the sentences short for each scene and include all photos and videos. Output JSON only in the format like in the example below:
+            """Task: You are a travel video scriptwriter.
+Please draft a script that chronologically narrates a series of photos and videos from a trip, based on a provided JSON list.
+Specifics:
+1. Narrate each item using details like place, date, time, and description in a story format, using first-person and past tense.
+2. The script should mimic a casual storytelling session, as if explaining the trip to friends or family.
+3. Infer logical placements for media items lacking complete information, ensuring continuity and context without guessing.
+4. Ensure the narration covers all items once, with video narrations tailored to not exceed their duration.
+5. Use short, clear sentences to maintain engagement and clarity in each scene's narration.
+
+Output JSON only in the format like in the example below:
     \n{
   "title": "Our Grand Canyon Adventure",
   "caption": "Join us on our unforgettable road trip to the Grand Canyon, as we explore stunning landscapes and experience the beauty of one of the world's natural wonders.",
