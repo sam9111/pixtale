@@ -1,17 +1,14 @@
 {% extends 'base.html' %} {% block main %}
 
 <div class="flex m-auto h-screen space-y-8 py-10 mx-10">
-  <div class="flex flex-col space-y-8 w-1/2 items-start ml-4">
+  <div class="flex flex-col space-y-8 w-1/2">
     <h4 class="text-2xl font-bold dark:text-white"></h4>
 
     <div
       class="mx-6 flex flex-col items-center justify-center space-y-8 max-w-lg p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
     >
       <video muted autoplay controls width="320" height="240">
-        <source
-          src="static/public/result/final_video.mp4"
-          type="video/mp4"
-        />
+        <source src="static/public/result/final_video.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
@@ -22,19 +19,36 @@
       <p class="text-gray-500 dark:text-gray-400">{{ caption }}</p>
       <p class="text-gray-500 dark:text-gray-400">{{ hashtags }}</p>
     </div>
+    <div
+      class="mx-6 flex flex-col justify-center space-y-4 max-w-lg p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+    >
+      <div class="text-gray-500 dark:text-gray-400 whitespace-pre-line">
+        {{ blog }}
+      </div>
+      <button
+        class="p-2 rounded-md focus:outline-none focus:ring"
+        id="regenerate-blog"
+      >
+        <img
+          src="{{ url_for('static', filename='gemini_icon.svg') }}"
+          alt="Gemini Icon"
+          class="w-8 h-8"
+        />
+      </button>
+    </div>
   </div>
 
-  <div class="w-full space-y-8">
+  <div class="w-1/2 space-y-8">
     <h4 class="text-2xl font-bold dark:text-white">
-      AI - Generated Video Script
+      AI - Generated Video Script & Mini Blog
     </h4>
 
     <p class="text-gray-500 dark:text-gray-400">
       And that's it! Now you have a video with narration all with the magic of
-      Gemini AI. And also captions and hashtags to share on social media! Here
-      you can make changes to each scene so that the narration gets updated.
-      Also fill in any missing information like the date, time or place so that
-      Gemini AI can make a new script with that information.
+      Gemini AI. And also captions, hashtags and a mini blog to share on social
+      media! Here you can make changes to each scene so that the narration gets
+      updated. Also fill in any missing information like the date, time or place
+      so that Gemini AI can make a new script with that information. You can also regenerate descriptions of media items and the mini blog using Gemini AI.
     </p>
 
     <div class="flex justify-between items-center">
@@ -75,7 +89,6 @@
       <div class="flex flex-row items-center gap-2">
         <form action="/regenerate_video" method="post">
           <input
-  
             data-tooltip-target="tooltip-video"
             type="submit"
             value="Regenerate video"
@@ -93,7 +106,6 @@
         </form>
         <form action="/regenerate_script" method="post" class="">
           <input
-
             data-tooltip-target="tooltip-script"
             type="submit"
             value="Regenerate script"
@@ -407,6 +419,33 @@
         })
         .catch((error) => {
           console.error("Error saving voice:", error);
+        });
+    });
+
+  document
+    .getElementById("regenerate-blog")
+    .addEventListener("click", function (e) {
+      e.preventDefault(); // Prevent the default form submission if the button is inside a form
+
+      fetch("/regenerate_blog", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Include other headers as needed, such as CSRF tokens or authentication
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          window.location.href = "/result?ts=" + new Date().getTime();
+        })
+
+        .catch((error) => {
+          console.error(
+            "There has been a problem with your fetch operation:",
+            error
+          );
         });
     });
 </script>

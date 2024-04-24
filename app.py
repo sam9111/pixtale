@@ -119,6 +119,22 @@ def save_mediaitems():
     return redirect(url_for("get_video"))
 
 
+@app.route("/regenerate_blog", methods=["POST"])
+def regenerate_blog():
+
+    print("regenerate blog...")
+
+    with open("data/mediaitems.json", "r") as file:
+        mediaitems = json.load(file)
+
+    blog = generate_blog(mediaitems)
+
+    with open("data/blog.json", "w") as blog_file:
+        json.dump({"blog": blog}, blog_file)
+
+    return "Blog Regeneration success"
+
+
 @app.route("/regenerate_description", methods=["POST"])
 def regenerate_description():
 
@@ -172,7 +188,9 @@ def get_video():
     with open("data/voice.json", "r") as voice_file:
         GLOBAL_VOICE = json.load(voice_file)["selected_voice"]
 
-    print(GLOBAL_VOICE)
+    with open("data/blog.json", "r") as blog_file:
+        blog = json.load(blog_file)["blog"]
+
     return render_template(
         "result.html",
         mediaitems=mediaitems,
@@ -182,6 +200,7 @@ def get_video():
         caption=caption,
         hashtags=hashtags,
         voice=GLOBAL_VOICE["voice"],
+        blog=blog,
     )
 
 
@@ -260,6 +279,11 @@ def generate_video():
                 GLOBAL_VOICE = json.load(voice_file)["selected_voice"]
 
         create_video(mediaitems, public, GLOBAL_VOICE)
+
+        blog = generate_blog(mediaitems)
+
+        with open("data/blog.json", "w") as blog_file:
+            json.dump({"blog": blog}, blog_file)
 
         return redirect("/result")
 

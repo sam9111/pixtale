@@ -38,6 +38,8 @@
         >
           {% for album in albums %}
 
+          <option selected>Select from your Google Photos Album</option>
+
           <option value="{{album}}">{{album.title}}</option>
 
           {% endfor %}

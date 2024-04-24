@@ -220,3 +220,21 @@ def synthesize_text(
     with open(filename + ".mp3", "wb") as out:
         out.write(response.audio_content)
         print("Audio content written to file " + filename)
+
+
+def generate_blog(mediaitems):
+    prompt = """Task: You are a travel blogger writing a blog post using a JSON list of travel media.
+Please write a blog post in a narrative style that combines all photos and videos into a single journey tale.
+Specifics:
+1. Describe the journey using provided details like place, date, time, and descriptions in first person, past tense.
+2. Address missing data by deducing logical placements for media items without making assumptions.
+3. Do not reference any of the filenames in the output.
+"""
+
+    model = GenerativeModel(model_name="gemini-1.5-pro-preview-0409")
+
+    response = None
+    while response is None:
+        response = model.generate_content(prompt + str(mediaitems))
+
+    return response.text
