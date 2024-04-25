@@ -26,19 +26,17 @@
     </div>
 
     <div class="">
-      <label
-        for="gphotos"
-        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-        >Your Google Photos album link</label
-      >
+  
      <select
           name="album"
           id="album"
           class="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
         >
-          {% for album in albums %}
 
           <option selected>Select from your Google Photos Album</option>
+          {% for album in albums %}
+
+        
 
           <option value="{{album}}">{{album.title}}</option>
 
