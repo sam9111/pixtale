@@ -7,12 +7,15 @@ https://devpost.com/software/pixtale
 
 ## Google APIs Used
 
-OAuth 2.0 Client IDs
+Uses OAuth 2.0 Client IDs using _secrets_/client_secret.json:
 
 - Vertex AI API
 - Cloud Text-to-Speech API
-- Places API
 - Photos Library API
+
+Uses API key in .env:
+
+- Places API
 
 ## How to Run This Flask App
 
