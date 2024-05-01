@@ -109,8 +109,6 @@ venv.bak/
 
 static/public/
 
-*.zip
-
 data/
 
 *.mp3
