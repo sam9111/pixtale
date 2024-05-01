@@ -5,11 +5,13 @@ import vertexai
 from vertexai.generative_models import GenerativeModel, Part, Image
 import re
 
-# Initialize Vertex AI
-vertexai.init(project="pixtale-420019")
+from google.cloud import texttospeech
 
 
 def describe_video(video_file_path):
+
+    # Initialize Vertex AI
+    vertexai.init(project="pixtale-420019")
 
     model = GenerativeModel("gemini-1.5-pro-preview-0409")
 
@@ -35,6 +37,9 @@ def describe_video(video_file_path):
 
 
 def describe_image(image_path):
+
+    # Initialize Vertex AI
+    vertexai.init(project="pixtale-420019")
 
     model = GenerativeModel(model_name="gemini-pro-vision")
 
@@ -97,6 +102,9 @@ def generate_descriptions(dir_path, mediaitems):
 
 
 def get_script(mediaitems):
+
+    # Initialize Vertex AI
+    vertexai.init(project="pixtale-420019")
 
     print("getting script...")
     model = GenerativeModel(model_name="gemini-1.5-pro-preview-0409")
@@ -190,7 +198,9 @@ def synthesize_text(
     text, filename, language_code="en-US", name="en-US-Journey-F", gender="FEMALE"
 ):
     """Synthesizes speech from the input string of text."""
-    from google.cloud import texttospeech
+
+    # Initialize Vertex AI
+    vertexai.init(project="pixtale-420019")
 
     client = texttospeech.TextToSpeechClient()
 
@@ -223,6 +233,10 @@ def synthesize_text(
 
 
 def generate_blog(mediaitems):
+
+    # Initialize Vertex AI
+    vertexai.init(project="pixtale-420019")
+
     prompt = """Task: You are a travel blogger writing a blog post using a JSON list of travel media.
 Please write a blog post in a narrative style that combines all photos and videos into a single journey tale.
 Specifics:

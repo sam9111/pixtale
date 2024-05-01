@@ -1,4 +1,4 @@
-.env
+
 node_modules/**
 __pycache__/**
 venv-hireai/**
@@ -87,7 +87,6 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -108,14 +107,10 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-
-_secrets_/
-
 static/public/
 
 *.zip
 
 data/
-
 
 *.mp3

@@ -48,18 +48,25 @@ def download_mediaitem(media_item, download_folder):
 def get_all_albums():
     """Retrieve all albums from the user's Google Photos account."""
 
-    creds = get_credentials()
-    service = build("photoslibrary", "v1", credentials=creds, static_discovery=False)
-    albums = []
-    next_page_token = None
-    while True:
-        album_request = service.albums().list(pageSize=50, pageToken=next_page_token)
-        album_response = album_request.execute()
-        albums.extend(album_response.get("albums", []))
-        next_page_token = album_response.get("nextPageToken")
-        if next_page_token is None:
-            break
-    return albums
+    try:
+        creds = get_credentials()
+        service = build(
+            "photoslibrary", "v1", credentials=creds, static_discovery=False
+        )
+        albums = []
+        next_page_token = None
+        while True:
+            album_request = service.albums().list(
+                pageSize=50, pageToken=next_page_token
+            )
+            album_response = album_request.execute()
+            albums.extend(album_response.get("albums", []))
+            next_page_token = album_response.get("nextPageToken")
+            if next_page_token is None:
+                break
+        return albums
+    except:
+        return None
 
 
 def download_album_items(album_id, download_folder):

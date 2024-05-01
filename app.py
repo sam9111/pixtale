@@ -26,6 +26,10 @@ google_api_key = os.environ.get("GOOGLE_MAPS_KEY")
 def index():
 
     albums = get_all_albums()
+
+    if not albums:
+        albums = []
+
     return render_template("index.html", albums=albums)
 
 
