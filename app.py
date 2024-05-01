@@ -214,14 +214,17 @@ def generate_video():
     try:
 
         if os.path.exists(public):
-            print(f"Removing existing directory: {public}")
             shutil.rmtree(public)
-            print(f"Creating directory: {public}")
             os.makedirs(public)
+
+        if os.path.exists("./data"):
+            shutil.rmtree("./data")
+            os.makedirs("./data")
 
         zip_file = request.files["zip_file"]
 
         if zip_file:
+
             zip_file.save(
                 "./data/mediaitems.zip"
             )  # Save the uploaded zip file to a destination folder
