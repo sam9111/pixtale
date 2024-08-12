@@ -39,9 +39,9 @@ def describe_video(video_file_path):
 def describe_image(image_path):
 
     # Initialize Vertex AI
-    vertexai.init(project="gemini-1.5-flash-001")
+    vertexai.init(project="pixtale-420019")
 
-    model = GenerativeModel(model_name="gemini-pro-vision")
+    model = GenerativeModel(model_name="gemini-1.5-flash-001")
 
     try:
         image_content = Part.from_image(Image.load_from_file(image_path))
@@ -266,7 +266,7 @@ Specifics:
 3. Do not reference any of the filenames in the output.
 """
 
-    model = GenerativeModel(model_name="gemini-1.5-pro-preview-0409")
+    model = GenerativeModel(model_name="gemini-1.5-pro-001")
 
     response = None
     while response is None:
