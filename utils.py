@@ -37,30 +37,6 @@ def get_audio_duration(filepath):
         return None
 
 
-def get_video_duration(filepath):
-    """Get the duration of a video file using ffprobe with os.system."""
-    # Temporary file to store the output of ffprobe
-    temp_file = "temp_duration.txt"
-    cmd = f"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {filepath} > {temp_file}"
-    os.system(cmd)
-
-    # Read the duration from the temporary file
-    with open(temp_file, "r") as file:
-        duration = file.read().strip()
-
-    # Remove the temporary file
-    os.remove(temp_file)
-
-    try:
-        return float(duration)
-    except ValueError:
-        return None
-
-
-# Usage example:
-# duration = get_video_duration_using_os_system("/path/to/your/video.mp4")
-
-
 def create_video(mediaitems, dir_path, global_voice):
 
     print("global voice", global_voice)
@@ -110,7 +86,7 @@ def create_video(mediaitems, dir_path, global_voice):
             elif filepath.lower().endswith(video_extensions):
                 # Ensure video clip is of the correct format and resolution
                 video_clip_path = os.path.join(result_dir, f"clip_{i}.mp4")
-                video_duration = get_video_duration(filepath)
+
                 cmd = f"ffmpeg -y -i {filepath} -c:v libx264 -t {audio_duration} -pix_fmt yuv420p -vf scale=1080:1920 {video_clip_path}"
                 os.system(cmd)
 

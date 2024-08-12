@@ -297,7 +297,3 @@ def generate_video():
     except Exception as e:
 
         return render_template("index.html", error=e)
-
-
-if __name__ == "__main__":
-    app.run(debug=True)

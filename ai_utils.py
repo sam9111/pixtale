@@ -13,7 +13,7 @@ def describe_video(video_file_path):
     # Initialize Vertex AI
     vertexai.init(project="pixtale-420019")
 
-    model = GenerativeModel("gemini-1.5-pro-preview-0409")
+    model = GenerativeModel("gemini-1.5-flash-001")
 
     prompt = """
     Provide a description of the video.
@@ -39,7 +39,7 @@ def describe_video(video_file_path):
 def describe_image(image_path):
 
     # Initialize Vertex AI
-    vertexai.init(project="pixtale-420019")
+    vertexai.init(project="gemini-1.5-flash-001")
 
     model = GenerativeModel(model_name="gemini-pro-vision")
 
@@ -76,6 +76,26 @@ def parse_json_from_gemini(json_str: str):
         return None
 
 
+def get_video_duration(filepath):
+    """Get the duration of a video file using ffprobe with os.system."""
+    # Temporary file to store the output of ffprobe
+    temp_file = "temp_duration.txt"
+    cmd = f"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {filepath} > {temp_file}"
+    os.system(cmd)
+
+    # Read the duration from the temporary file
+    with open(temp_file, "r") as file:
+        duration = file.read().strip()
+
+    # Remove the temporary file
+    os.remove(temp_file)
+
+    try:
+        return float(duration)
+    except ValueError:
+        return None
+
+
 def generate_descriptions(dir_path, mediaitems):
 
     video_extensions = (".mov", ".mp4", ".avi", ".flv", ".wmv")
@@ -89,6 +109,7 @@ def generate_descriptions(dir_path, mediaitems):
         if file_path.lower().endswith(video_extensions):
 
             item["description"] = describe_video(file_path)
+            item["duration"] = get_video_duration(file_path)
 
         else:
 
@@ -107,7 +128,7 @@ def get_script(mediaitems):
     vertexai.init(project="pixtale-420019")
 
     print("getting script...")
-    model = GenerativeModel(model_name="gemini-1.5-pro-preview-0409")
+    model = GenerativeModel(model_name="gemini-1.5-pro-001")
 
     result = None
     while result is None:
