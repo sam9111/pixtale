@@ -1,3 +1,5 @@
+[Winner -  Most Impressive Technical Implementation for Google AI Hackathon
+](https://devpost.com/software/pixtale)
 # Pixtale
 
 With Pixtale, users can get videos of their trips narrated by Gemini AI. The process involves uploading a zip file containing photos and videos from the trip or selecting a Google Photos album. Pixtale then extracts metadata, generates descriptions using Gemini AI, creates a narrative script, converts the narration to audio, and combines everything into a final video. Additionally, Pixtale generates captions, hashtags, and a mini blog post to share on social media.
